@@ -1,0 +1,42 @@
+services:
+  productdb:
+    container_name: productdb
+    image: mongo
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 27017
+      published: 27017
+      protocol: tcp
+    restart: always
+    volumes:
+    - type: volume
+      source: mongo_data
+      target: /data/db
+      volume: {}
+  webapplication4:
+    build:
+      context: .
+      dockerfile: WebApplication4/Dockerfile
+    container_name: product.api
+    depends_on:
+      productdb:
+        condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      DatebaseSettings:ConnectionString: mongodb://productdb:27017
+    image: webapplication4
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 80
+      published: 8000
+      protocol: tcp
+networks:
+  default:
+    name: dockercompose7130883813240705821_default
+volumes:
+  mongo_data:
+    name: dockercompose7130883813240705821_mongo_data
